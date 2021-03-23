@@ -10,5 +10,4 @@ app.use("/api/v1", require("./routes/photo-upload"));
 const server = app.listen(PORT, () => {
   console.log(`💎 Server running on Port: ${PORT}`);
   console.log("Stop with Ctrl+C");
-  console.log(process.env);
 })
