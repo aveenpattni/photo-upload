@@ -1,4 +1,6 @@
 const aws = require("aws-sdk");
+const multer = require("multer");
+const multerS3 = require("multer-s3");
 
 const config = require("../config");
 
@@ -8,25 +10,29 @@ aws.config.update({
   region: config.REGION
 });
 
-const s3 = new aws.s3({params: {Bucket: "aveen-test-s3"}});
+const s3 = new aws.S3();
 
-const imageUpload = (path, buffer) => {
-  const data = {
-    Key: path,
-    Body: buffer,
-    ContentEncoding: "base64",
-    ContentType: "image/jpeg",
-    ACL: "public-read"
-  };
-  return new Promise((res, rej) => {
-    s3.putObject(data, err => {
-      if(err) {
-        rej(err);
-      } else {
-        res(s3Url + path);
-      };
-    });
-  });
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
+    cb(null, true);
+  } else {
+    cb(new Error("Invalid File type. Only JPEG and PNG"), false);
+  }
 }
+
+const imageUpload = multer({
+  fileFilter,
+  storage: multerS3({
+    s3,
+    bucket: "aveen-test-s3/photo-upload",
+    acl: "public-read",
+    metadata: function (req, file, cb) {
+      cb(null, {fieldName: "Metadata_Test"});
+    },
+    key: function (req, file, cb) {
+      cb(null, Date.now().toString());
+    }
+  })
+})
 
 module.exports = imageUpload;
