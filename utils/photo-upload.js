@@ -26,7 +26,7 @@ const imageUpload = multer({
   fileFilter,
   storage: multerS3({
     s3,
-    bucket: "aveen-test-s3/photo-upload",
+    bucket: config.DB,
     acl: "public-read",
     contentType: multerS3.AUTO_CONTENT_TYPE,
     metadata: function (req, file, cb) {
